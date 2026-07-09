@@ -6,7 +6,6 @@ export interface AdminUser {
   id: number;
   email: string | null;
   displayName: string | null;
-  role: 'user' | 'admin';
   totalXp: number;
   streakDays: number;
   createdAt: string;
@@ -27,6 +26,14 @@ export interface AdminUserDetail extends AdminUser {
   authProvider: string;
 }
 
+export interface AdminUserWordList {
+  id: string;
+  title: string;
+  wordCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AdminCollection {
   id: string;
   title: string;
@@ -37,6 +44,13 @@ export interface AdminCollection {
 
 export interface AdminCollectionDetail extends AdminCollection {
   words: string[];
+}
+
+export interface AdminCollectionList {
+  items: AdminCollection[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
 
 export async function listUsers(params: {
@@ -58,12 +72,23 @@ export async function getUser(id: number): Promise<Envelope<AdminUserDetail>> {
 
 export async function updateUser(
   id: number,
-  data: { displayName?: string; role?: 'user' | 'admin' },
+  data: { displayName?: string },
 ): Promise<Envelope<AdminUser>> {
   return request<Envelope<AdminUser>>(`/api/admin/users/${id}`, {
     method: 'PATCH',
     data,
   });
+}
+
+export async function listUserWordLists(
+  id: number,
+): Promise<Envelope<AdminUserWordList[]>> {
+  return request<Envelope<AdminUserWordList[]>>(
+    `/api/admin/users/${id}/word-lists`,
+    {
+      method: 'GET',
+    },
+  );
 }
 
 export async function getCollection(
@@ -77,9 +102,13 @@ export async function getCollection(
   );
 }
 
-export async function listCollections(): Promise<Envelope<AdminCollection[]>> {
-  return request<Envelope<AdminCollection[]>>('/api/admin/collections', {
+export async function listCollections(params?: {
+  page?: number;
+  pageSize?: number;
+}): Promise<Envelope<AdminCollectionList>> {
+  return request<Envelope<AdminCollectionList>>('/api/admin/collections', {
     method: 'GET',
+    params,
   });
 }
 

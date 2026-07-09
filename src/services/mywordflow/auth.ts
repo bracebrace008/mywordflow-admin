@@ -20,7 +20,7 @@ export async function login(
   email: string,
   password: string,
 ): Promise<Envelope<LoginResult>> {
-  return request<Envelope<LoginResult>>('/api/public/login', {
+  return request<Envelope<LoginResult>>('/api/admin/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ export async function login(
 }
 
 export async function getProfile(): Promise<Envelope<UserProfile>> {
-  return request<Envelope<UserProfile>>('/api/user/profile', {
+  return request<Envelope<UserProfile>>('/api/admin/me', {
     method: 'GET',
   });
 }

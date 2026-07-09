@@ -143,10 +143,14 @@ const CollectionsPage: React.FC = () => {
             新建词库
           </Button>,
         ]}
-        request={async () => {
-          const response = await listCollections();
+        request={async (params) => {
+          const response = await listCollections({
+            page: params.current,
+            pageSize: params.pageSize,
+          });
           return {
-            data: response.data,
+            data: response.data.items,
+            total: response.data.total,
             success: true,
           };
         }}

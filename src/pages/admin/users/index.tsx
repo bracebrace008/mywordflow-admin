@@ -2,22 +2,37 @@ import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import {
   ModalForm,
   PageContainer,
-  ProFormSelect,
   ProFormText,
   ProTable,
 } from '@ant-design/pro-components';
-import { App, Button } from 'antd';
+import { App, Button, Drawer, Table } from 'antd';
 import React, { useRef, useState } from 'react';
 import {
   type AdminUser,
+  type AdminUserWordList,
   listUsers,
+  listUserWordLists,
   updateUser,
 } from '@/services/mywordflow/admin';
 
 const UsersPage: React.FC = () => {
   const actionRef = useRef<ActionType | null>(null);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [wordListsUser, setWordListsUser] = useState<AdminUser | null>(null);
+  const [wordLists, setWordLists] = useState<AdminUserWordList[]>([]);
+  const [wordListsLoading, setWordListsLoading] = useState(false);
   const { message } = App.useApp();
+
+  const openWordLists = async (user: AdminUser) => {
+    setWordListsUser(user);
+    setWordListsLoading(true);
+    try {
+      const response = await listUserWordLists(user.id);
+      setWordLists(response.data);
+    } finally {
+      setWordListsLoading(false);
+    }
+  };
 
   const columns: ProColumns<AdminUser>[] = [
     {
@@ -34,15 +49,6 @@ const UsersPage: React.FC = () => {
     {
       title: '显示名',
       dataIndex: 'displayName',
-      search: false,
-    },
-    {
-      title: '角色',
-      dataIndex: 'role',
-      valueEnum: {
-        user: { text: '用户' },
-        admin: { text: '管理员', status: 'Success' },
-      },
       search: false,
     },
     {
@@ -67,6 +73,13 @@ const UsersPage: React.FC = () => {
       render: (_, record) => [
         <Button key="edit" type="link" onClick={() => setEditingUser(record)}>
           编辑
+        </Button>,
+        <Button
+          key="word-lists"
+          type="link"
+          onClick={() => openWordLists(record)}
+        >
+          词表
         </Button>,
       ],
     },
@@ -111,16 +124,32 @@ const UsersPage: React.FC = () => {
         }}
       >
         <ProFormText name="displayName" label="显示名" />
-        <ProFormSelect
-          name="role"
-          label="角色"
-          options={[
-            { label: '用户', value: 'user' },
-            { label: '管理员', value: 'admin' },
-          ]}
-          rules={[{ required: true, message: '请选择角色' }]}
-        />
       </ModalForm>
+
+      <Drawer
+        title={`${wordListsUser?.email ?? '用户'} 的词表`}
+        width={520}
+        open={!!wordListsUser}
+        onClose={() => setWordListsUser(null)}
+        destroyOnHidden
+      >
+        <Table<AdminUserWordList>
+          rowKey="id"
+          loading={wordListsLoading}
+          dataSource={wordLists}
+          pagination={false}
+          columns={[
+            { title: '标题', dataIndex: 'title' },
+            { title: '单词数', dataIndex: 'wordCount', width: 90 },
+            {
+              title: '创建时间',
+              dataIndex: 'createdAt',
+              width: 190,
+              render: (value: string) => new Date(value).toLocaleString(),
+            },
+          ]}
+        />
+      </Drawer>
     </PageContainer>
   );
 };

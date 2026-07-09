@@ -5,7 +5,12 @@ import { Alert, App } from 'antd';
 import { createStyles } from 'antd-style';
 import React, { startTransition, useState } from 'react';
 import { Footer } from '@/components';
-import { getProfile, login, setToken } from '@/services/mywordflow/auth';
+import {
+  clearToken,
+  getProfile,
+  login,
+  setToken,
+} from '@/services/mywordflow/auth';
 import type { UserProfile } from '@/services/mywordflow/types';
 import Settings from '../../../../config/defaultSettings';
 
@@ -65,6 +70,7 @@ const Login: React.FC = () => {
       const profileResponse = await getProfile();
       const profile = profileResponse.data;
       if (profile.role !== 'admin') {
+        clearToken();
         setErrorMessage('当前账号无后台管理权限');
         return;
       }
@@ -82,6 +88,7 @@ const Login: React.FC = () => {
       const redirectUrl = getSafeRedirectUrl(urlParams.get('redirect'));
       history.push(redirectUrl);
     } catch (error: any) {
+      clearToken();
       setErrorMessage(error?.message || '登录失败，请重试');
     }
   };
