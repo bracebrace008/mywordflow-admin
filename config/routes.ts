@@ -32,6 +32,11 @@ export default [
         component: './admin/users',
       },
       {
+        path: '/admin/admins',
+        name: '管理员管理',
+        component: './admin/admins',
+      },
+      {
         path: '/admin/collections',
         name: '精选词库',
         component: './admin/collections',

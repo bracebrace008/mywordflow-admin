@@ -34,6 +34,25 @@ export interface AdminUserWordList {
   updatedAt: string;
 }
 
+export interface AdminUserWordListDetail extends AdminUserWordList {
+  words: string[];
+}
+
+export interface AdminStaff {
+  id: number;
+  email: string;
+  displayName: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminStaffList {
+  items: AdminStaff[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export interface AdminCollection {
   id: string;
   title: string;
@@ -146,6 +165,87 @@ export async function deleteCollection(
   id: string,
 ): Promise<Envelope<{ id: string }>> {
   return request<Envelope<{ id: string }>>(`/api/admin/collections/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function getUserWordList(
+  userId: number,
+  listId: string,
+): Promise<Envelope<AdminUserWordListDetail>> {
+  return request<Envelope<AdminUserWordListDetail>>(
+    `/api/admin/users/${userId}/word-lists/${listId}`,
+    { method: 'GET' },
+  );
+}
+
+export async function createUserWordList(
+  userId: number,
+  data: { title: string; words: string[] },
+): Promise<Envelope<AdminUserWordListDetail>> {
+  return request<Envelope<AdminUserWordListDetail>>(
+    `/api/admin/users/${userId}/word-lists`,
+    { method: 'POST', data },
+  );
+}
+
+export async function updateUserWordList(
+  userId: number,
+  listId: string,
+  data: { title?: string; words?: string[] },
+): Promise<Envelope<AdminUserWordListDetail>> {
+  return request<Envelope<AdminUserWordListDetail>>(
+    `/api/admin/users/${userId}/word-lists/${listId}`,
+    { method: 'PUT', data },
+  );
+}
+
+export async function deleteUserWordList(
+  userId: number,
+  listId: string,
+): Promise<Envelope<{ id: string }>> {
+  return request<Envelope<{ id: string }>>(
+    `/api/admin/users/${userId}/word-lists/${listId}`,
+    { method: 'DELETE' },
+  );
+}
+
+export async function listAdmins(params?: {
+  page?: number;
+  pageSize?: number;
+  email?: string;
+}): Promise<Envelope<AdminStaffList>> {
+  return request<Envelope<AdminStaffList>>('/api/admin/admins', {
+    method: 'GET',
+    params,
+  });
+}
+
+export async function createAdmin(data: {
+  email: string;
+  password: string;
+  displayName?: string;
+}): Promise<Envelope<AdminStaff>> {
+  return request<Envelope<AdminStaff>>('/api/admin/admins', {
+    method: 'POST',
+    data,
+  });
+}
+
+export async function updateAdmin(
+  id: number,
+  data: { displayName?: string; password?: string },
+): Promise<Envelope<AdminStaff>> {
+  return request<Envelope<AdminStaff>>(`/api/admin/admins/${id}`, {
+    method: 'PATCH',
+    data,
+  });
+}
+
+export async function deleteAdmin(
+  id: number,
+): Promise<Envelope<{ id: number }>> {
+  return request<Envelope<{ id: number }>>(`/api/admin/admins/${id}`, {
     method: 'DELETE',
   });
 }
