@@ -6,7 +6,7 @@ import {
   ProFormTextArea,
   ProTable,
 } from '@ant-design/pro-components';
-import { App, Button, Popconfirm } from 'antd';
+import { App, Button, Image, Popconfirm } from 'antd';
 import React, { useRef, useState } from 'react';
 import {
   type AdminCollection,
@@ -16,6 +16,7 @@ import {
   listCollections,
   updateCollection,
 } from '@/services/mywordflow/admin';
+import { textToWords, wordsToText } from '../word-list-form-utils';
 
 type CollectionFormValues = {
   title: string;
@@ -24,21 +25,11 @@ type CollectionFormValues = {
   wordsText: string;
 };
 
-function wordsToText(words: string[]): string {
-  return words.join('\n');
-}
-
-function textToWords(text: string): string[] {
-  return text
-    .split(/[\n,，]/)
-    .map((word) => word.trim())
-    .filter(Boolean);
-}
-
 const CollectionsPage: React.FC = () => {
   const actionRef = useRef<ActionType | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [previewCoverUrl, setPreviewCoverUrl] = useState<string | null>(null);
   const { message } = App.useApp();
 
   const columns: ProColumns<AdminCollection>[] = [
@@ -60,8 +51,13 @@ const CollectionsPage: React.FC = () => {
     {
       title: '封面',
       dataIndex: 'coverUrl',
-      ellipsis: true,
       search: false,
+      render: (_, record) =>
+        record.coverUrl ? (
+          <Image src={record.coverUrl} width={48} height={48} />
+        ) : (
+          '-'
+        ),
     },
     {
       title: '操作',
@@ -91,11 +87,17 @@ const CollectionsPage: React.FC = () => {
     values: CollectionFormValues,
     id?: string,
   ) => {
+    const words = textToWords(values.wordsText);
+    if (words.length === 0) {
+      message.error('请至少输入一个单词');
+      return false;
+    }
+
     const payload = {
       title: values.title,
       description: values.description,
       coverUrl: values.coverUrl,
-      words: textToWords(values.wordsText),
+      words,
     };
 
     if (id) {
@@ -117,13 +119,25 @@ const CollectionsPage: React.FC = () => {
         rules={[{ required: true, message: '请输入标题' }]}
       />
       <ProFormTextArea name="description" label="描述" />
-      <ProFormText name="coverUrl" label="封面 URL" />
+      <ProFormText
+        name="coverUrl"
+        label="封面 URL"
+        fieldProps={{
+          onChange: (event) => setPreviewCoverUrl(event.target.value || null),
+        }}
+      />
+      {previewCoverUrl ? (
+        <div style={{ marginBottom: 16 }}>
+          <Image src={previewCoverUrl} width={120} />
+        </div>
+      ) : null}
       <ProFormTextArea
         name="wordsText"
         label="单词列表"
         placeholder="每行一个单词，或用逗号分隔"
         fieldProps={{ rows: 8 }}
         rules={[{ required: true, message: '请输入至少一个单词' }]}
+        extra="保存前会校验至少包含 1 个有效单词"
       />
     </>
   );
@@ -163,11 +177,17 @@ const CollectionsPage: React.FC = () => {
         open={createOpen}
         modalProps={{
           destroyOnHidden: true,
-          onCancel: () => setCreateOpen(false),
+          onCancel: () => {
+            setCreateOpen(false);
+            setPreviewCoverUrl(null);
+          },
         }}
         onFinish={async (values) => {
           const ok = await submitCollection(values as CollectionFormValues);
-          if (ok) setCreateOpen(false);
+          if (ok) {
+            setCreateOpen(false);
+            setPreviewCoverUrl(null);
+          }
           return ok;
         }}
       >
@@ -179,13 +199,17 @@ const CollectionsPage: React.FC = () => {
         open={!!editingId}
         modalProps={{
           destroyOnHidden: true,
-          onCancel: () => setEditingId(null),
+          onCancel: () => {
+            setEditingId(null);
+            setPreviewCoverUrl(null);
+          },
         }}
         params={{ id: editingId }}
         request={async () => {
           if (!editingId) return {};
           const response = await getCollection(editingId);
           const detail = response.data;
+          setPreviewCoverUrl(detail.coverUrl ?? null);
           return {
             title: detail.title,
             description: detail.description ?? undefined,
@@ -199,7 +223,10 @@ const CollectionsPage: React.FC = () => {
             values as CollectionFormValues,
             editingId,
           );
-          if (ok) setEditingId(null);
+          if (ok) {
+            setEditingId(null);
+            setPreviewCoverUrl(null);
+          }
           return ok;
         }}
       >

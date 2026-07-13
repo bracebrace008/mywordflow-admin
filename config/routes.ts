@@ -41,6 +41,16 @@ export default [
         name: '精选词库',
         component: './admin/collections',
       },
+      {
+        path: '/admin/notices',
+        name: '公告管理',
+        component: './admin/notices',
+      },
+      {
+        path: '/admin/analytics',
+        name: '数据分析',
+        component: './admin/analytics',
+      },
     ],
   },
   {

@@ -14,7 +14,7 @@
 - Admin Vitest（本功能）：**2 / 2 通过**（`src/pages/admin/admins`、`src/pages/admin/users`）
 - Admin Vitest（全量）：**34 / 38 通过**（4 个失败为仓库既有用例，非本次改动）
 - Admin lint/tsc：**通过**
-- 手动 UI 验收：**未在本轮自动执行**（可用 `@dev-stack` 访问 `/admin/admins`、`/admin/users`）
+- 手动 UI 验收：**已通过代码级自动化覆盖扩展**（用户详情/进度/公告/数据分析页新增；建议 dev-stack 下人工抽检 `/admin/users` 详情 Drawer、`/admin/notices`、`/admin/analytics`）
 
 ## 命令与结果
 

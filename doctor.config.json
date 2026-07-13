@@ -34,8 +34,7 @@
       },
       {
         "files": [
-          "src/pages/form/advanced-form/index.tsx",
-          "src/pages/table-list/index.tsx"
+          "src/pages/form/advanced-form/index.tsx"
         ],
         "rules": ["react-doctor/no-giant-component"]
       }
