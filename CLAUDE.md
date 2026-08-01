@@ -42,6 +42,8 @@ Other: `npm run openapi` (regenerate `src/services/`), `npm run simple` (**irrev
 
 ## AI Skills
 
+**Cursor**：需求/计划逐分支拷问见 [`.cursor/skills/grill-me/SKILL.md`](.cursor/skills/grill-me/SKILL.md)（grill me / 拷问我 / 压测计划）。
+
 This project ships with two built-in Claude Code Skills (`.claude/skills/`). If you already have these skills in your project, no installation is needed — just run them directly. To update to the latest skill definitions, run `npx skills add ant-design/ant-design-pro`.
 
 ### `/pro-upgrade` — Project Upgrade
