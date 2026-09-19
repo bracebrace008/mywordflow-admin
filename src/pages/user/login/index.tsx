@@ -13,6 +13,9 @@ import {
 } from '@/services/mywordflow/auth';
 import type { UserProfile } from '@/services/mywordflow/types';
 import Settings from '../../../../config/defaultSettings';
+import { resolveLocalLoginPrefill } from './loginPrefill';
+
+const isLocalDev = process.env.NODE_ENV === 'development';
 
 const getSafeRedirectUrl = (redirect: string | null): string => {
   if (!redirect?.startsWith('/')) return '/welcome';
@@ -104,6 +107,7 @@ const Login: React.FC = () => {
           logo={<img alt="logo" src="/logo.svg" />}
           title="MyWordFlow"
           subTitle="后台管理系统"
+          initialValues={resolveLocalLoginPrefill(isLocalDev)}
           onFinish={handleSubmit}
         >
           {errorMessage ? (
